@@ -4,7 +4,6 @@ use netavark::{
         core_utils::{open_netlink_sockets, CoreUtils},
         netlink_route, types,
     },
-    new_error,
     plugin::{Info, Plugin, PluginExec, API_VERSION},
 };
 use netlink_packet_route::{address::AddressAttribute, link::LinkAttribute};
@@ -18,11 +17,36 @@ impl Plugin for NetNsDriver {
         &self,
         network: types::Network,
     ) -> Result<types::Network, Box<dyn std::error::Error>> {
-        if network.network_interface.as_deref().unwrap_or_default() == "" {
-            return Err(new_error!("no network interface is specified"));
+        // TODO: validate that the options we expect are present
+        let mut options = HashMap::from([("isolate".to_string(), "true".to_string())]);
+        if let Some(opts) = network.options {
+            options.extend(opts)
         }
 
-        Ok(network)
+        let network_interface = match network.network_interface.as_deref() {
+            // TODO: validate that the iface to use does not exist
+            Some(_) => Some("relayed0".to_string()),
+            None => Some("podnull0".to_string()),
+        };
+
+        let normalized_network = types::Network {
+            driver: network.driver,
+            id: network.id,
+            name: network.name,
+            network_interface,
+            options: Some(options),
+            internal: true,
+            ipv6_enabled: true,
+            dns_enabled: false,
+            ipam_options: Some(HashMap::default()),
+            subnets: Some(vec![]),
+            routes: Some(vec![]),
+            network_dns_servers: Some(vec![]),
+        };
+
+        println!("TODO: create the actual shared namespace");
+
+        Ok(normalized_network)
     }
 
     fn setup(
