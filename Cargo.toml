@@ -6,6 +6,9 @@ description = "Netavark plugin to create a custom network whose backing underlay
 repository = "https://github.com/caguado/netavark-plugin-pond"
 license = "Apache-2.0"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+ipnet = "2.9.0"
+netavark = "1.10.3"
+netlink-packet-core = "0.8.1"
+netlink-packet-route = "0.25.1"
+netlink-sys = "0.8.5"
